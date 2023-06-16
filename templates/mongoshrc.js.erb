@@ -39,7 +39,7 @@ if (authRequired()) {
   }
   catch (err) {
     // This isn't catching authentication errors as I'd expect...
-    abort('Unknown error')
+    exit
   }
    <%- else -%>
   // rs.slaveOk has been deprecated, use secondaryOk if available
@@ -57,7 +57,7 @@ if (authRequired()) {
   }
   catch (err) {
     // This isn't catching authentication errors as I'd expect...
-    abort('Unknown error')
+    exit
   }
     <% end -%>
   <% end -%>
