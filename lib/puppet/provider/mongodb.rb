@@ -27,10 +27,10 @@ class Puppet::Provider::Mongodb < Puppet::Provider
   end
 
   def self.mongo_conf
-    mongosh_config = YAML.load_file('/root/.mongosh.yaml') || {}
     config = YAML.load_file(mongod_conf_file) || {}
     # determine if we need the tls for connecion or client
     _tlscert = if config['setParameter'] && config['setParameter']['authenticationMechanisms'] == 'MONGODB-X509'
+                 mongosh_config = YAML.load_file('/root/.mongosh.yaml') || {}
                  if mongosh_config['admin'] && mongosh_config['admin']['tlsCertificateKeyFile']
                    mongosh_config['admin']['tlsCertificateKeyFile']
                  else
