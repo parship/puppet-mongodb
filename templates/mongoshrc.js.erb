@@ -42,13 +42,20 @@ if (authRequired()) {
     exit
   }
    <%- else -%>
-  // rs.slaveOk has been deprecated, use secondaryOk if available
-  try {
-    rs.secondaryOk()
-  }
-  catch (err) {
-    rs.slaveOk()
-  }
+  if (authRequired()) {
+    // rs.slaveOk + rs secondaryOk have been deprecated, use setReadPref when running mongodb version >=5
+    try {
+      version=parseInt(db.version().split('.')[0])
+      if (version>=5){
+        db.getMongo().setReadPref('nearest')
+      }
+      else{
+        rs.secondaryOk()
+      }
+    }
+    catch (err) {
+      rs.slaveOk()
+    }
   try {
     var prev_db = db
     db = db.getSiblingDB('admin')
