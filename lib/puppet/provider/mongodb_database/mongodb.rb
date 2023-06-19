@@ -7,7 +7,21 @@ Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider:
   def self.instances
     require 'json'
 
-    pre_cmd = 'try { rs.secondaryOk() } catch (err) { rs.slaveOk() }'
+    pre_cmd='
+    try {
+      version=parseInt(db.version().split(\'.\')[0])
+      if (version>=5){
+        db.getMongo().setReadPref(\'nearest\')
+      }
+      else{
+        rs.secondaryOk()
+      }
+    }
+    catch (err) {
+      rs.slaveOk()
+    }
+    '
+    #pre_cmd = 'try { rs.secondaryOk() } catch (err) { rs.slaveOk() }'
     dbs = JSON.parse mongo_eval(pre_cmd + ';printjson(db.getMongo().getDBs())')
 
     dbs['databases'].map do |db|
