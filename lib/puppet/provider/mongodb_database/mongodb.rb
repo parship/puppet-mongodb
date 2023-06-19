@@ -1,3 +1,4 @@
+require 'pp'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'mongodb'))
 Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider::Mongodb) do
   desc 'Manages MongoDB database.'
@@ -21,8 +22,10 @@ Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider:
       rs.slaveOk()
     }
     '
-    #pre_cmd = 'try { rs.secondaryOk() } catch (err) { rs.slaveOk() }'
-    dbs = JSON.parse mongo_eval(pre_cmd + ';printjson(db.getMongo().getDBs())')
+    mongo_eval_result=mongo_eval(pre_cmd + ';JSON.stringify(db.getMongo().getDBs())')
+    pp mongo_eval_result
+    dbs = JSON.parse mongo_eval_result
+
 
     dbs['databases'].map do |db|
       new(name: db['name'],
