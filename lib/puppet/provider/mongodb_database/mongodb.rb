@@ -23,7 +23,7 @@ Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider:
       rs.slaveOk()
     }
     '
-    mongo_eval_result = mongo_eval(pre_cmd + ';JSON.stringify(db.getMongo().getDBs())')
+    mongo_eval_result = mongo_eval("#{pre_cmd};JSON.stringify(db.getMongo().getDBs())")
     pp mongo_eval_result
     dbs = JSON.parse mongo_eval_result
 
