@@ -5,6 +5,7 @@ require 'puppet/util/mongodb_output'
 
 require 'yaml'
 require 'json'
+
 class Puppet::Provider::Mongodb < Puppet::Provider
   # Without initvars commands won't work.
   initvars
