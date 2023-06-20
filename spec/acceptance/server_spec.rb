@@ -25,7 +25,7 @@ describe 'mongodb::server class' do
     service_name = 'mongod'
     package_name = 'mongodb-org-server'
   end
-  major_version = 6 #fact('mongodb_version').split('.')[0].to_i
+  major_version = 6 # fact('mongodb_version').split('.')[0].to_i
   mongo_cli = if major_version >= 5
                 'mongosh'
               else

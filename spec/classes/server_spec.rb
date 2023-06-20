@@ -21,8 +21,7 @@ describe 'mongodb::server' do
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
-      facts.merge({mongodb_version: '6.0.0'})
-      let(:facts) { facts }
+      facts.merge({ mongodb_version: '6.0.0' })
       major_version = 6
       mongo_cli = if major_version >= 5
                     'mongosh'
@@ -30,6 +29,7 @@ describe 'mongodb::server' do
                     'mongo'
                   end
 
+      let(:facts) { facts }
       let(:config_file) do
         if facts[:os]['family'] == 'Debian'
           if facts[:os]['release']['major'] =~ %r{(10)}
