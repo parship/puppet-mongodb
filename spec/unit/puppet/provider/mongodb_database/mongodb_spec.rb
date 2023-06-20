@@ -38,7 +38,21 @@ describe Puppet::Type.type(:mongodb_database).provider(:mongodb) do
     tmp = Tempfile.new('test')
     mongodconffile = tmp.path
     allow(provider.class).to receive(:mongod_conf_file).and_return(mongodconffile)
-    allow(provider.class).to receive(:mongo_eval).with('try { rs.secondaryOk() } catch (err) { rs.slaveOk() };printjson(db.getMongo().getDBs())').and_return(raw_dbs)
+    mongodb_eval_command = '
+    try {
+      version=parseInt(db.version().split(\'.\')[0])
+      if (version>=5){
+        db.getMongo().setReadPref(\'nearest\')
+      }
+      else{
+        rs.secondaryOk()
+      }
+    }
+    catch (err) {
+      rs.slaveOk()
+    }
+    ;JSON.stringify(db.getMongo().getDBs())'.squeeze(" ")
+    allow(provider.class).to receive(:mongo_eval).with(mongodb_eval_command).and_return(raw_dbs)
     allow(provider.class).to receive(:db_ismaster).and_return(true)
   end
 
