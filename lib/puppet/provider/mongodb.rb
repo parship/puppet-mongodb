@@ -28,15 +28,6 @@ class Puppet::Provider::Mongodb < Puppet::Provider
 
   def self.mongo_conf
     config = YAML.load_file(mongod_conf_file) || {}
-    # determine if we need the tls for connecion or client
-    _tlscert = if config['setParameter'] && config['setParameter']['authenticationMechanisms'] == 'MONGODB-X509'
-                 mongosh_config = YAML.load_file('/root/.mongosh.yaml') || {}
-                 if mongosh_config['admin'] && mongosh_config['admin']['tlsCertificateKeyFile']
-                   mongosh_config['admin']['tlsCertificateKeyFile']
-                 else
-                   config['net.tls.certificateKeyFile']
-                 end
-               end
     {
       'bindip' => config['net.bindIp'],
       'port' => config['net.port'],
@@ -47,7 +38,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
       'sslca' => config['net.ssl.CAFile'],
       'tlsallowInvalidHostnames' => config['net.tls.allowInvalidHostnames'],
       'tls' => config['net.tls.mode'],
-      'tlscert' => _tlscert,
+      'tlscert' => config['net.tls.certificateKeyFile'],
       'tlsca' => config['net.tls.CAFile'],
       'auth' => config['security.authorization'],
       'shardsvr' => config['sharding.clusterRole'],
