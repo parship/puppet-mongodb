@@ -25,13 +25,12 @@ describe 'mongodb::server class' do
     service_name = 'mongod'
     package_name = 'mongodb-org-server'
   end
-  major_version=fact('mongodb_version').split('.')[0].to_i
-  if major_version>=5
-    mongo_cli=mongosh
+  major_version = fact('mongodb_version').split('.')[0].to_i
+  mongo_cli = if major_version >= 5
+    'mongosh'
   else
-    mongo_cli=mongo
+    'mongo'
   end
-
 
   describe 'installation' do
     it 'works with no errors' do
@@ -149,8 +148,6 @@ describe 'mongodb::server class' do
     describe command('mongo --quiet --eval "db.serverCmdLineOpts().code"') do
       its(:stdout) { is_expected.to match '13' }
     end
-
-
 
     describe file("/root/.#{mongo_cli}.js") do
       it { is_expected.to be_file }

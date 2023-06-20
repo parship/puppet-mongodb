@@ -51,7 +51,7 @@ describe Puppet::Type.type(:mongodb_database).provider(:mongodb) do
     catch (err) {
       rs.slaveOk()
     }
-    ;JSON.stringify(db.getMongo().getDBs())'.squeeze(" ")
+    ;JSON.stringify(db.getMongo().getDBs())'.squeeze(' ')
     allow(provider.class).to receive(:mongo_eval).with(mongodb_eval_command).and_return(raw_dbs)
     allow(provider.class).to receive(:db_ismaster).and_return(true)
   end
