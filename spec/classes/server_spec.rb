@@ -21,7 +21,14 @@ describe 'mongodb::server' do
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
+      facts.merge({mongodb_version: '6.0.0'})
       let(:facts) { facts }
+      major_version = 6
+      mongo_cli = if major_version >= 5
+                    'mongosh'
+                  else
+                    'mongo'
+                  end
 
       let(:config_file) do
         if facts[:os]['family'] == 'Debian'
@@ -71,7 +78,7 @@ describe 'mongodb::server' do
           it { is_expected.to contain_file(config_file).with_content(%r{^  fork: true$}) }
         end
 
-        it { is_expected.to contain_file('/root/.mongorc.js').with_ensure('file').without_content(%r{db\.auth}) }
+        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{db\.auth}) }
         it { is_expected.not_to contain_exec('fix dbpath permissions') }
       end
 
@@ -165,7 +172,7 @@ describe 'mongodb::server' do
         end
 
         it { is_expected.to contain_file(config_file).with_content(%r{^security\.authorization: enabled$}) }
-        it { is_expected.to contain_file('/root/.mongorc.js') }
+        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js") }
       end
 
       describe 'when specifying set_parameter array value' do
@@ -262,7 +269,7 @@ describe 'mongodb::server' do
           end
 
           it {
-            is_expected.to contain_file('/root/.mongorc.js').
+            is_expected.to contain_file("/root/.#{mongo_cli}rc.js").
               with_ensure('file').
               with_owner('root').
               with_group('root').
@@ -278,7 +285,7 @@ describe 'mongodb::server' do
             }
           end
 
-          it { is_expected.to contain_file('/root/.mongorc.js').with_ensure('file').without_content(%r{db\.auth}) }
+          it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{db\.auth}) }
         end
       end
 

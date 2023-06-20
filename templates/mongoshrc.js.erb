@@ -28,21 +28,7 @@ function authRequired() {
 
 if (authRequired()) {
   <%- if @replset -%>
-    <%- if @admin_auth_mechanism == 'x509' -%>
-  db.getMongo().setReadPref()
-  try {
-    db.getSiblingDB('$external').auth(
-      {
-        mechanism: 'MONGODB-X509'
-      }
-    )
-  }
-  catch (err) {
-    // This isn't catching authentication errors as I'd expect...
-    exit
-  }
-   <%- else -%>
-    // rs.slaveOk + rs secondaryOk have been deprecated, use setReadPref when running mongodb version >=5
+  // rs.slaveOk + rs secondaryOk have been deprecated, use setReadPref when running mongodb version >=5
     try {
       version=parseInt(db.version().split('.')[0])
       if (version>=5){
@@ -52,20 +38,36 @@ if (authRequired()) {
         rs.secondaryOk()
       }
     }
+
     catch (err) {
       rs.slaveOk()
     }
-  try {
-    var prev_db = db
-    db = db.getSiblingDB('admin')
-    db.auth('<%= @admin_username %>', '<%= @admin_password_unsensitive %>')
-    db = db.getSiblingDB(prev_db)
-  }
-  catch (err) {
-    // This isn't catching authentication errors as I'd expect...
-    exit
-  }
-    <% end -%>
+  <% end -%>
+
+
+  <%- if @admin_auth_mechanism == 'x509' -%>
+      try {
+        db.getSiblingDB('$external').auth(
+          {
+            mechanism: 'MONGODB-X509'
+          }
+        )
+      }
+      catch (err) {
+        // This isn't catching authentication errors as I'd expect...
+        exit
+      }
+  <%- else -%>
+    try {
+      var prev_db = db
+      db = db.getSiblingDB('admin')
+      db.auth('<%= @admin_username %>', '<%= @admin_password_unsensitive %>')
+      db = db.getSiblingDB(prev_db)
+    }
+    catch (err) {
+      // This isn't catching authentication errors as I'd expect...
+      exit
+    }
   <% end -%>
 }
 <% end -%>
