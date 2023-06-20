@@ -97,8 +97,7 @@ class mongodb::server (
   Boolean $create_admin                                         = $mongodb::params::create_admin,
   String $admin_username                                        = $mongodb::params::admin_username,
   Optional[Variant[String, Sensitive[String]]] $admin_password  = undef,
-  Enum['scram_sha_1', 'scram_sha_256', 'x509'] $admin_auth_mechanism = $mongodb::params::admin_auth_mechanism,
-  Optional[Stdlib::Absolutepath] $admin_tls_key                 = undef,
+  Enum['scram_sha_1', 'scram_sha_256'] $admin_auth_mechanism    = $mongodb::params::admin_auth_mechanism,
   Boolean $admin_update_password                                = false,
   Boolean $handle_creds                                         = $mongodb::params::handle_creds,
   Boolean $store_creds                                          = $mongodb::params::store_creds,
@@ -127,13 +126,6 @@ class mongodb::server (
   } else {
     $admin_password
   }
-
-  # using x509, we need the admin clent certificate in the parameter --tlsCertificateKeyFile
-  # there is no way where we can set this in neither the /etc/momgosh.yaml or the /etc/mongod.conf
-  # The mongodb provider reads in /etc/mongod.conf  setParameters.authenticationMechanisms: MONGODB-X509 settings
-  # to determine that a client cert authentication is used. There is no setting to set the client cert to be used.
-  # so we store it in a file in roots home directory. (this is done in mongodb::server::config
-
   if $create_admin and ($service_ensure == 'running' or $service_ensure == true) {
     mongodb::db { 'admin':
       user            => $admin_username,

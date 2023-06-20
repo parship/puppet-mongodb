@@ -30,7 +30,6 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
 
   def self.instances
     instance = replset_properties
-    Puppet.debug("In replset.instances with #{instance}")
     if instance
       # There can only be one replset per node
       [new(instance)]
@@ -40,7 +39,6 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
   end
 
   def self.prefetch(resources)
-    Puppet.debug("In replset.prefetch")
     instances.each do |prov|
       resource = resources[prov.name]
       resource.provider = prov if resource
@@ -149,7 +147,6 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
   end
 
   def get_hosts_status(members)
-    Puppet.debug("In get_hosts_status")
     alive = []
     members.select do |member|
       begin
@@ -192,7 +189,6 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
   end
 
   def get_members_changes(current_members_conf, new_members_conf)
-    Puppet.debug("In get_members_changes")
     # no changes in members config
     return [[], [], []] if new_members_conf.nil?
 
