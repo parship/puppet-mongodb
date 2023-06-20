@@ -27,10 +27,10 @@ describe 'mongodb::server class' do
   end
   major_version = fact('mongodb_version').split('.')[0].to_i
   mongo_cli = if major_version >= 5
-    'mongosh'
-  else
-    'mongo'
-  end
+                'mongosh'
+              else
+                'mongo'
+              end
 
   describe 'installation' do
     it 'works with no errors' do
