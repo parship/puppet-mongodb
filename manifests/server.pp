@@ -34,7 +34,7 @@ class mongodb::server (
   String $package_name                                          = $mongodb::params::server_package_name,
   String $mongosh_package_name                                  = $mongodb::params::mongosh_package_name,
   Variant[Boolean, Stdlib::Absolutepath] $logpath               = $mongodb::params::logpath,
-  Array[Stdlib::Compat::Ip_address] $bind_ip                    = $mongodb::params::bind_ip,
+  Array[Stdlib::IP::Address] $bind_ip                           = $mongodb::params::bind_ip,
   Optional[Boolean] $ipv6                                       = undef,
   Boolean $logappend                                            = true,
   Optional[String] $system_logrotate                            = undef,
