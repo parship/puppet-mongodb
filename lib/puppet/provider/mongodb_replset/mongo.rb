@@ -156,7 +156,7 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
       status = rs_status(host)
       raise Puppet::Error, "Can't configure replicaset #{name}, host #{host} is not supposed to be part of a replicaset." if status.key?('errmsg') && status['errmsg'] == 'not running with --replSet'
 
-      if auth_enabled && status.key?('errmsg') && (status['errmsg'].include?('unauthorized') || status['errmsg'].include?('not authorized') || status['errmsg'].include?('requires authentication'))
+      if auth_enabled && status.key?('errmsg') && (status['errmsg'].include?('unauthorized') || status['errmsg'].include?('not authorized') || status['errmsg'].include?('requires authentication')) || status.include?('command replSetGetStatus requires authentication')
         Puppet.warning "Host #{host} is available, but you are unauthorized because of authentication is enabled: #{auth_enabled}"
         alive.push(member)
       end
@@ -394,6 +394,10 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
     output = '{}' if output == "\nnull\n"
 
     # Parse the JSON output and return
-    JSON.parse(output)
+    begin
+      JSON.parse(output)
+    rescue
+      output
+    end
   end
 end

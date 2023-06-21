@@ -104,6 +104,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
     end
 
     args += ['--eval', "\"#{cmd}\""]
+    Puppet.warning "mongosh: #{args}"
     mongo(args)
   end
 
@@ -156,9 +157,9 @@ class Puppet::Provider::Mongodb < Puppet::Provider
   end
 
   # Mongo Command Wrapper
-  def self.mongo_eval(cmd, db = 'admin', retries = 10, host = nil)
+  def self.mongo_eval(cmd, db = 'admin', retries = 2, host = nil)
     retry_count = retries
-    retry_sleep = 3
+    retry_sleep = 1
     cmd = mongorc_file + cmd if mongorc_file
 
     out = nil
@@ -172,17 +173,20 @@ class Puppet::Provider::Mongodb < Puppet::Provider
       retry_count -= 1
       if retry_count.positive?
         Puppet.debug "Request failed: '#{e.message}' Retry: '#{retries - retry_count}'"
+        out = { 'errmsg' =>  "#{e.message}" }
         sleep retry_sleep
         retry
       end
     end
 
+
     raise Puppet::ExecutionFailure, "Could not evaluate MongoDB shell command: #{cmd}" unless out
 
-    Puppet::Util::MongodbOutput.sanitize(out)
+    # Puppet::Util::MongodbOutput.sanitize(out)
+    out
   end
 
-  def mongo_eval(cmd, db = 'admin', retries = 10, host = nil)
+  def mongo_eval(cmd, db = 'admin', retries = 2, host = nil)
     self.class.mongo_eval(cmd, db, retries, host)
   end
 

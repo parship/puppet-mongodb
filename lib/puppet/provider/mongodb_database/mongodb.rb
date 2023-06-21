@@ -9,21 +9,23 @@ Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider:
   def self.instances
     require 'json'
 
-    pre_cmd = '
-    try {
-      version=parseInt(db.version().split(\'.\')[0])
-      if (version>=5){
-        db.getMongo().setReadPref(\'nearest\')
-      }
-      else{
-        rs.secondaryOk()
-      }
-    }
-    catch (err) {
-      rs.slaveOk()
-    }
-    '.squeeze(' ')
-    mongo_eval_result = mongo_eval("#{pre_cmd};JSON.stringify(db.getMongo().getDBs())")
+    # pre_cmd = '
+    # try {
+    #   version=parseInt(db.version().split(\'.\')[0])
+    #   if (version>=5){
+    #     db.getMongo().setReadPref(\'nearest\')
+    #   }
+    #   else{
+    #     rs.secondaryOk()
+    #   }
+    # }
+    # catch (err) {
+    #   rs.slaveOk()
+    # }
+    # '.squeeze(' ')
+    mongo_eval_result = mongo_eval("JSON.stringify(db.getMongo().getDBs())")
+    Puppet.warning "#### DBS  #{mongo_eval_result} ####"
+
     dbs = JSON.parse mongo_eval_result
 
     dbs['databases'].map do |db|

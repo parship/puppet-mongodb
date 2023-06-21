@@ -80,7 +80,7 @@ Facter.add('mongodb_is_master') do
         e = File.exist?('/root/.mongorc.js') ? 'load(\'/root/.mongorc.js\'); ' : ''
 
         # Check if the mongodb server is responding:
-        Facter::Core::Execution.exec("mongo --quiet #{options} --eval \"#{e}printjson(db.adminCommand({ ping: 1 }))\"")
+        Facter::Core::Execution.exec("mongo --quiet #{options} --eval \"#{e}EJSON.stringify(db.adminCommand({ ping: 1 }))\"")
 
         if $CHILD_STATUS.success?
           Facter::Core::Execution.exec("mongo --quiet #{options} --eval \"#{e}db.isMaster().ismaster\"")

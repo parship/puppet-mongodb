@@ -10,7 +10,7 @@ Puppet::Type.type(:mongodb_user).provide(:mongodb, parent: Puppet::Provider::Mon
     require 'json'
 
     if db_ismaster
-      script = 'printjson(db.system.users.find().toArray())'
+      script = 'EJSON.stringify(db.system.users.find().toArray())'
       # A hack to prevent prefetching failures until admin user is created
       script = "try {#{script}} catch (e) { if (e.message.match(/not authorized on admin/)) { 'not authorized on admin' } else {throw e}}" if auth_enabled
 

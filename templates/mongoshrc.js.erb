@@ -30,15 +30,12 @@ if (authRequired()) {
   <%- if @replset -%>
   // rs.slaveOk + rs secondaryOk have been deprecated, use setReadPref when running mongodb version >=5
     try {
-      version=parseInt(db.version().split('.')[0])
-      if (version>=5){
+  <%- if @major_version_greater6 -%>
         db.getMongo().setReadPref('nearest')
-      }
-      else{
+  <%- else -%>
         rs.secondaryOk()
-      }
+  <%- end -%>
     }
-
     catch (err) {
       rs.slaveOk()
     }
