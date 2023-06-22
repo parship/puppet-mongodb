@@ -127,12 +127,12 @@ class mongodb::server (
     $admin_password
   }
   if $create_admin and ($service_ensure == 'running' or $service_ensure == true) {
-    mongodb_user { "admin user":
+    mongodb_user { 'admin user':
       ensure         => present,
       username       => $admin_username,
       database       => 'admin',
       roles          => $admin_roles,
-      auth_mechanism => $auth_mechanism,
+      auth_mechanism => $admin_auth_mechanism,
       password       => $admin_password,
     }
 
