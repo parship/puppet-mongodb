@@ -36,7 +36,7 @@ class mongodb::server::install {
   }
   unless defined(Package[$mongosh_package_name]) {
     package { 'mongodb_mongosh':
-      ensure => latest,
+      ensure => present,
       name   => $mongosh_package_name,
       tag    => 'mongodb_mongosh_package',
     }

@@ -30,7 +30,7 @@ if (authRequired()) {
   <%- if @replset -%>
   // rs.slaveOk + rs secondaryOk have been deprecated, use setReadPref when running mongodb version >=5
     try {
-  <%- if @major_version_greater6 -%>
+  <%- if @major_version_greater5 -%>
         db.getMongo().setReadPref('nearest')
   <%- else -%>
         rs.secondaryOk()
@@ -56,10 +56,8 @@ if (authRequired()) {
       }
   <%- else -%>
     try {
-      var prev_db = db
-      db = db.getSiblingDB('admin')
-      db.auth('<%= @admin_username %>', '<%= @admin_password_unsensitive %>')
-      db = db.getSiblingDB(prev_db)
+      admin = db.getSiblingDB('admin')
+      admin.auth('<%= @admin_username %>', '<%= @admin_password_unsensitive %>')
     }
     catch (err) {
       // This isn't catching authentication errors as I'd expect...

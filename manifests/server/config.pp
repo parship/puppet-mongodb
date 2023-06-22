@@ -175,10 +175,10 @@ class mongodb::server::config {
     $admin_password
   }
   if $handle_creds {
-    if versioncmp($version, '6.0') >= 0 {
-      $major_version_greater6 = true
+    if versioncmp($version, '5.0') >= 0 {
+      $major_version_greater5 = true
     } else {
-      $major_version_greater6 = false
+      $major_version_greater5 = false
     }
     file { $rcfile:
       ensure  => file,

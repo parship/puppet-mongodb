@@ -127,12 +127,13 @@ class mongodb::server (
     $admin_password
   }
   if $create_admin and ($service_ensure == 'running' or $service_ensure == true) {
-    mongodb::db { 'admin':
-      user            => $admin_username,
-      auth_mechanism  => $admin_auth_mechanism,
-      password        => $admin_password_unsensitive,
-      roles           => $admin_roles,
-      update_password => $admin_update_password,
+    mongodb_user { "admin user":
+      ensure         => present,
+      username       => $admin_username,
+      database       => 'admin',
+      roles          => $admin_roles,
+      auth_mechanism => $auth_mechanism,
+      password       => $admin_password,
     }
 
     # Make sure it runs before other DB creation
@@ -170,7 +171,7 @@ class mongodb::server (
 
       # Make sure that the ordering is correct
       if $create_admin {
-        Class['mongodb::replset'] -> Mongodb::Db['admin']
+        Class['mongodb::replset'] -> Mongodb_user['admin user']
       }
     }
   }
