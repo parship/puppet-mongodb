@@ -73,7 +73,6 @@ class mongodb::server::config {
   $tls_invalid_hostnames = $mongodb::server::tls_invalid_hostnames
   $tls_mode         = $mongodb::server::tls_mode
   $storage_engine   = $mongodb::server::storage_engine
-  $version          = $mongodb::globals::version
 
   File {
     owner => $user,
@@ -175,11 +174,6 @@ class mongodb::server::config {
     $admin_password
   }
   if $handle_creds {
-    if versioncmp($version, '5.0') >= 0 {
-      $major_version_greater5 = true
-    } else {
-      $major_version_greater5 = false
-    }
     file { $rcfile:
       ensure  => file,
       content => template('mongodb/mongoshrc.js.erb'),
