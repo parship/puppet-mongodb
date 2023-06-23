@@ -21,6 +21,9 @@ describe 'mongodb::server' do
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
+      let(:pre_condition) do
+        "class { 'mongodb::globals': version => '6.0.0' }"
+      end
       facts.merge({ mongodb_version: '6.0.0' })
       major_version = 6
       mongo_cli = if major_version >= 5
@@ -78,7 +81,7 @@ describe 'mongodb::server' do
           it { is_expected.to contain_file(config_file).with_content(%r{^  fork: true$}) }
         end
 
-        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{db\.auth}) }
+        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{admin\.auth}) }
         it { is_expected.not_to contain_exec('fix dbpath permissions') }
       end
 
@@ -274,7 +277,7 @@ describe 'mongodb::server' do
               with_owner('root').
               with_group('root').
               with_mode('0600').
-              with_content(%r{db\.auth\('admin', 'password'\)})
+              with_content(%r{admin\.auth\('admin', 'password'\)})
           }
         end
 
@@ -285,7 +288,7 @@ describe 'mongodb::server' do
             }
           end
 
-          it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{db\.auth}) }
+          it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{admin\.auth}) }
         end
       end
 
