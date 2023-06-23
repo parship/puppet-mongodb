@@ -21,9 +21,6 @@ describe 'mongodb::server' do
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
-      let(:pre_condition) do
-        "class { 'mongodb::globals': version => '6.0.0' }"
-      end
       facts.merge({ mongodb_version: '6.0.0' })
       major_version = 6
       mongo_cli = if major_version >= 5
@@ -107,8 +104,8 @@ describe 'mongodb::server' do
         it_behaves_like 'server classes'
 
         it do
-          is_expected.to contain_mongodb__db('admin').
-            with_user('admin').
+          is_expected.to contain_mongodb__user('admin').
+            with_username('admin').
             with_password('password').
             with_roles(%w[userAdmin readWrite dbAdmin dbAdminAnyDatabase readAnyDatabase
                           readWriteAnyDatabase userAdminAnyDatabase clusterAdmin clusterManager
