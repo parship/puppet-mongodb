@@ -9,7 +9,7 @@ Puppet::Type.type(:mongodb_database).provide(:mongodb, parent: Puppet::Provider:
   def self.instances
     require 'json'
 
-    mongo_eval_result = mongo_eval("JSON.stringify(db.getMongo().getDBs())")
+    mongo_eval_result = mongo_eval('JSON.stringify(db.getMongo().getDBs())')
 
     dbs = JSON.parse mongo_eval_result
 

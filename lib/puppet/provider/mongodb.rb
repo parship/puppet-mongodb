@@ -171,7 +171,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
       retry_count -= 1
       if retry_count.positive?
         Puppet.debug "Request failed: '#{e.message}' Retry: '#{retries - retry_count}'"
-        out = { 'errmsg' =>  "#{e.message}" }
+        out = { 'errmsg' => e.message }
         sleep retry_sleep
         retry
       end

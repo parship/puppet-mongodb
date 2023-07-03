@@ -396,7 +396,7 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
     # Parse the JSON output and return
     begin
       JSON.parse(output)
-    rescue
+    rescue e
       output
     end
   end
