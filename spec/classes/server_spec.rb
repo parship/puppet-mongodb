@@ -115,7 +115,6 @@ describe 'mongodb::server' do
                           readWriteAnyDatabase userAdminAnyDatabase clusterAdmin clusterManager
                           clusterMonitor hostManager root restore])
         end
-
       end
 
       describe 'with preset variables' do
