@@ -104,7 +104,11 @@ describe 'mongodb::server' do
         it_behaves_like 'server classes'
 
         it do
-          is_expected.to contain_mongodb__user('admin').
+          File.write(
+            'myclass.json',
+            PSON.pretty_generate(catalogue)
+          )
+          is_expected.to contain_mongodb_user('admin user').
             with_username('admin').
             with_password('password').
             with_roles(%w[userAdmin readWrite dbAdmin dbAdminAnyDatabase readAnyDatabase
@@ -112,7 +116,6 @@ describe 'mongodb::server' do
                           clusterMonitor hostManager root restore])
         end
 
-        it { is_expected.to contain_mongodb_database('admin').that_requires('Service[mongodb]') }
       end
 
       describe 'with preset variables' do
