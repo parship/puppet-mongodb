@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
-require 'puppet/util/mongodb_output'
 
 require 'yaml'
 require 'json'
+
 class Puppet::Provider::Mongodb < Puppet::Provider
   # Without initvars commands won't work.
   initvars
-  commands mongo: 'mongo'
+  # TODO: do we still need to support mongo ? Since it is removed from 6.x, not in this PR
+  commands mongo: 'mongosh'
 
   # Optional defaults file
   def self.mongorc_file
-    "load('#{Facter.value(:root_home)}/.mongorc.js'); " if File.file?("#{Facter.value(:root_home)}/.mongorc.js")
+    "load('#{Facter.value(:root_home)}/.mongoshrc.js'); " if File.file?("#{Facter.value(:root_home)}/.mongoshrc.js")
   end
 
   def mongorc_file
@@ -43,7 +44,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
       'tlsca' => config['net.tls.CAFile'],
       'auth' => config['security.authorization'],
       'shardsvr' => config['sharding.clusterRole'],
-      'confsvr' => config['sharding.clusterRole']
+      'confsvr' => config['sharding.clusterRole'],
     }
   end
 
@@ -92,15 +93,16 @@ class Puppet::Provider::Mongodb < Puppet::Provider
 
     if tls_is_enabled(config)
       args.push('--tls')
-      args += ['--tlsCertificateKeyFile', config['tlscert']]
 
       tls_ca = config['tlsca']
       args += ['--tlsCAFile', tls_ca] unless tls_ca.nil?
 
+      args += ['--tlsCertificateKeyFile', config['tlscert']]
+
       args.push('--tlsAllowInvalidHostnames') if tls_invalid_hostnames(config)
     end
 
-    args += ['--eval', cmd]
+    args += ['--eval', "\"#{cmd}\""]
     mongo(args)
   end
 
@@ -169,6 +171,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
       retry_count -= 1
       if retry_count.positive?
         Puppet.debug "Request failed: '#{e.message}' Retry: '#{retries - retry_count}'"
+        out = { 'errmsg' => e.message }
         sleep retry_sleep
         retry
       end
@@ -176,7 +179,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
 
     raise Puppet::ExecutionFailure, "Could not evaluate MongoDB shell command: #{cmd}" unless out
 
-    Puppet::Util::MongodbOutput.sanitize(out)
+    out
   end
 
   def mongo_eval(cmd, db = 'admin', retries = 10, host = nil)
@@ -192,6 +195,7 @@ class Puppet::Provider::Mongodb < Puppet::Provider
     self.class.mongo_version
   end
 
+  # TODO: moingosh only from 4.2 bersion ?, so do we remove this?
   def self.mongo_26?
     v = mongo_version
     !v[%r{^2\.6\.}].nil?
@@ -217,5 +221,14 @@ class Puppet::Provider::Mongodb < Puppet::Provider
 
   def mongo_5?
     self.class.mongo_5?
+  end
+
+  def self.mongo_6?
+    v = mongo_version
+    !v[%r{^6\.}].nil?
+  end
+
+  def mongo_6?
+    self.class.mongo_6?
   end
 end

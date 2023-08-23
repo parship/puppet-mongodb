@@ -21,8 +21,15 @@ describe 'mongodb::server' do
 
   on_supported_os.each do |os, facts|
     context "on #{os}" do
-      let(:facts) { facts }
+      facts.merge({ mongodb_version: '6.0.0' })
+      major_version = 6
+      mongo_cli = if major_version >= 5
+                    'mongosh'
+                  else
+                    'mongo'
+                  end
 
+      let(:facts) { facts }
       let(:config_file) do
         if facts[:os]['family'] == 'Debian'
           if facts[:os]['release']['major'] =~ %r{(10)}
@@ -71,7 +78,7 @@ describe 'mongodb::server' do
           it { is_expected.to contain_file(config_file).with_content(%r{^  fork: true$}) }
         end
 
-        it { is_expected.to contain_file('/root/.mongorc.js').with_ensure('file').without_content(%r{db\.auth}) }
+        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{admin\.auth}) }
         it { is_expected.not_to contain_exec('fix dbpath permissions') }
       end
 
@@ -97,15 +104,17 @@ describe 'mongodb::server' do
         it_behaves_like 'server classes'
 
         it do
-          is_expected.to contain_mongodb__db('admin').
-            with_user('admin').
+          File.write(
+            'myclass.json',
+            PSON.pretty_generate(catalogue)
+          )
+          is_expected.to contain_mongodb_user('admin user').
+            with_username('admin').
             with_password('password').
             with_roles(%w[userAdmin readWrite dbAdmin dbAdminAnyDatabase readAnyDatabase
                           readWriteAnyDatabase userAdminAnyDatabase clusterAdmin clusterManager
                           clusterMonitor hostManager root restore])
         end
-
-        it { is_expected.to contain_mongodb_database('admin').that_requires('Service[mongodb]') }
       end
 
       describe 'with preset variables' do
@@ -165,7 +174,7 @@ describe 'mongodb::server' do
         end
 
         it { is_expected.to contain_file(config_file).with_content(%r{^security\.authorization: enabled$}) }
-        it { is_expected.to contain_file('/root/.mongorc.js') }
+        it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js") }
       end
 
       describe 'when specifying set_parameter array value' do
@@ -262,12 +271,12 @@ describe 'mongodb::server' do
           end
 
           it {
-            is_expected.to contain_file('/root/.mongorc.js').
+            is_expected.to contain_file("/root/.#{mongo_cli}rc.js").
               with_ensure('file').
               with_owner('root').
               with_group('root').
               with_mode('0600').
-              with_content(%r{db\.auth\('admin', 'password'\)})
+              with_content(%r{admin\.auth\('admin', 'password'\)})
           }
         end
 
@@ -278,7 +287,7 @@ describe 'mongodb::server' do
             }
           end
 
-          it { is_expected.to contain_file('/root/.mongorc.js').with_ensure('file').without_content(%r{db\.auth}) }
+          it { is_expected.to contain_file("/root/.#{mongo_cli}rc.js").with_ensure('file').without_content(%r{admin\.auth}) }
         end
       end
 

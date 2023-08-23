@@ -32,6 +32,7 @@ class mongodb::server (
   Optional[Enum['stopped', 'running']] $service_status          = $mongodb::params::service_status,
   Variant[Boolean, String] $package_ensure                      = $mongodb::params::package_ensure,
   String $package_name                                          = $mongodb::params::server_package_name,
+  String $mongosh_package_name                                  = $mongodb::params::mongosh_package_name,
   Variant[Boolean, Stdlib::Absolutepath] $logpath               = $mongodb::params::logpath,
   Array[Stdlib::IP::Address] $bind_ip                           = $mongodb::params::bind_ip,
   Optional[Boolean] $ipv6                                       = undef,
@@ -126,12 +127,13 @@ class mongodb::server (
     $admin_password
   }
   if $create_admin and ($service_ensure == 'running' or $service_ensure == true) {
-    mongodb::db { 'admin':
-      user            => $admin_username,
-      auth_mechanism  => $admin_auth_mechanism,
-      password        => $admin_password_unsensitive,
-      roles           => $admin_roles,
-      update_password => $admin_update_password,
+    mongodb_user { 'admin user':
+      ensure         => present,
+      username       => $admin_username,
+      database       => 'admin',
+      roles          => $admin_roles,
+      auth_mechanism => $admin_auth_mechanism,
+      password       => $admin_password,
     }
 
     # Make sure it runs before other DB creation
@@ -169,7 +171,7 @@ class mongodb::server (
 
       # Make sure that the ordering is correct
       if $create_admin {
-        Class['mongodb::replset'] -> Mongodb::Db['admin']
+        Class['mongodb::replset'] -> Mongodb_user['admin user']
       }
     }
   }

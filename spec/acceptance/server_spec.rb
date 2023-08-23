@@ -25,6 +25,12 @@ describe 'mongodb::server class' do
     service_name = 'mongod'
     package_name = 'mongodb-org-server'
   end
+  major_version = 6 # fact('mongodb_version').split('.')[0].to_i
+  mongo_cli = if major_version >= 5
+                'mongosh'
+              else
+                'mongo'
+              end
 
   describe 'installation' do
     it 'works with no errors' do
@@ -143,15 +149,15 @@ describe 'mongodb::server class' do
       its(:stdout) { is_expected.to match '13' }
     end
 
-    describe file('/root/.mongorc.js') do
+    describe file("/root/.#{mongo_cli}.js") do
       it { is_expected.to be_file }
       it { is_expected.to be_owned_by 'root' }
       it { is_expected.to be_grouped_into 'root' }
       it { is_expected.to be_mode 600 }
-      it { is_expected.to contain 'db.auth(\'admin\', \'password\')' }
+      it { is_expected.to contain 'admin.auth(\'admin\', \'password\')' }
     end
 
-    describe command("mongo admin --quiet --eval \"load('/root/.mongorc.js');printjson(db.getUser('admin')['customData'])\"") do
+    describe command("#{mongo_cli} admin --quiet --eval \"load('/root/.#{mongo_cli}.js');printjson(db.getUser('admin')['customData'])\"") do
       its(:exit_status) { is_expected.to eq 0 }
       its(:stdout) { is_expected.to match "{ \"createdBy\" : \"Puppet Mongodb_user['User admin on db admin']\" }\n" }
     end

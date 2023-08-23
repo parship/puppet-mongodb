@@ -10,7 +10,7 @@ Puppet::Type.type(:mongodb_user).provide(:mongodb, parent: Puppet::Provider::Mon
     require 'json'
 
     if db_ismaster
-      script = 'printjson(db.system.users.find().toArray())'
+      script = 'EJSON.stringify(db.system.users.find().toArray())'
       # A hack to prevent prefetching failures until admin user is created
       script = "try {#{script}} catch (e) { if (e.message.match(/not authorized on admin/)) { 'not authorized on admin' } else {throw e}}" if auth_enabled
 
@@ -59,7 +59,7 @@ Puppet::Type.type(:mongodb_user).provide(:mongodb, parent: Puppet::Provider::Mon
         roles: role_hashes(@resource[:roles], @resource[:database]),
       }
 
-      if mongo_4? || mongo_5?
+      if mongo_4? || mongo_5? || mongo_6?
         if @resource[:auth_mechanism] == :scram_sha_256 # rubocop:disable Naming/VariableNumber
           command[:mechanisms] = ['SCRAM-SHA-256']
           command[:pwd] = @resource[:password]
@@ -120,7 +120,7 @@ Puppet::Type.type(:mongodb_user).provide(:mongodb, parent: Puppet::Provider::Mon
         digestPassword: true
       }
 
-      if mongo_4? || mongo_5?
+      if mongo_4? || mongo_5? || mongo_6?
         command[:mechanisms] = @resource[:auth_mechanism] == :scram_sha_256 ? ['SCRAM-SHA-256'] : ['SCRAM-SHA-1'] # rubocop:disable Naming/VariableNumber
       end
 

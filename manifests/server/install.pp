@@ -1,7 +1,8 @@
 # PRIVATE CLASS: do not call directly
 class mongodb::server::install {
-  $package_ensure = $mongodb::server::package_ensure
-  $package_name   = $mongodb::server::package_name
+  $package_ensure       = $mongodb::server::package_ensure
+  $package_name         = $mongodb::server::package_name
+  $mongosh_package_name = $mongodb::server::mongosh_package_name
 
   case $package_ensure {
     true:     {
@@ -31,6 +32,13 @@ class mongodb::server::install {
       ensure => $my_package_ensure,
       name   => $package_name,
       tag    => 'mongodb_package',
+    }
+  }
+  unless defined(Package[$mongosh_package_name]) {
+    package { 'mongodb_mongosh':
+      ensure => present,
+      name   => $mongosh_package_name,
+      tag    => 'mongodb_mongosh_package',
     }
   }
 }

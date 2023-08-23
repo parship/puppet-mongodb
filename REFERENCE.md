@@ -1203,6 +1203,7 @@ The following parameters are available in the `mongodb::server` class:
 * [`service_status`](#-mongodb--server--service_status)
 * [`package_ensure`](#-mongodb--server--package_ensure)
 * [`package_name`](#-mongodb--server--package_name)
+* [`mongosh_package_name`](#-mongodb--server--mongosh_package_name)
 * [`logpath`](#-mongodb--server--logpath)
 * [`bind_ip`](#-mongodb--server--bind_ip)
 * [`ipv6`](#-mongodb--server--ipv6)
@@ -1458,6 +1459,14 @@ Data type: `String`
 
 
 Default value: `$mongodb::params::server_package_name`
+
+##### <a name="-mongodb--server--mongosh_package_name"></a>`mongosh_package_name`
+
+Data type: `String`
+
+
+
+Default value: `$mongodb::params::mongosh_package_name`
 
 ##### <a name="-mongodb--server--logpath"></a>`logpath`
 

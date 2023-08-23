@@ -280,7 +280,7 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
           Puppet.debug 'Replica set initialization has successfully ended'
           return true
         else
-          Puppet.debug "Wainting for replica initialization. Retry: #{n}"
+          Puppet.debug "Waiting for replica initialization. Retry: #{n}"
           sleep retry_sleep
           next
         end
@@ -383,7 +383,7 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
 
   def self.mongo_command(command, host = nil, retries = 4)
     begin
-      output = mongo_eval("printjson(#{command})", 'admin', retries, host)
+      output = mongo_eval("EJSON.stringify(#{command})", 'admin', retries, host)
     rescue Puppet::ExecutionFailure => e
       Puppet.debug "Got an exception: #{e}"
       raise
@@ -394,6 +394,10 @@ Puppet::Type.type(:mongodb_replset).provide(:mongo, parent: Puppet::Provider::Mo
     output = '{}' if output == "\nnull\n"
 
     # Parse the JSON output and return
-    JSON.parse(output)
+    begin
+      JSON.parse(output)
+    rescue e
+      output
+    end
   end
 end

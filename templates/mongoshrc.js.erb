@@ -1,0 +1,61 @@
+function rsReconfigMember(member){
+  var cfg = rs.config()
+  cfg.members.forEach(function(part,index,memberArray){
+    if (member.host == part.host) {
+      for(k in member){
+        memberArray[index][k] = member[k]
+      }
+    }
+  })
+  return rs.reconfig(cfg)
+}
+
+function rsReconfigSettings(settings){
+  var cfg = rs.config()
+  cfg.settings = settings
+  return rs.reconfig(cfg)
+}
+
+<% if @auth and @store_creds -%>
+function authRequired() {
+  try {
+    db.serverCmdLineOpts();
+    return false;
+  } catch (err) {
+    return true;
+  }
+}
+
+if (authRequired()) {
+  <%- if @replset -%>
+    try {
+      db.getMongo().setReadPref('nearest')
+    } catch (err) {
+      rs.secondaryOk()
+    }
+  <% end -%>
+
+  <%- if @admin_auth_mechanism == 'x509' -%>
+      try {
+        db.getSiblingDB('$external').auth(
+          {
+            mechanism: 'MONGODB-X509'
+          }
+        )
+      }
+      catch (err) {
+        // This isn't catching authentication errors as I'd expect...
+        exit
+      }
+  <%- else -%>
+    try {
+      admin = db.getSiblingDB('admin')
+      admin.auth('<%= @admin_username %>', '<%= @admin_password_unsensitive %>')
+    }
+    catch (err) {
+      // This isn't catching authentication errors as I'd expect...
+      exit
+    }
+  <% end -%>
+}
+<% end -%>
